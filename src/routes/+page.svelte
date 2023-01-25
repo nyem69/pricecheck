@@ -17,6 +17,11 @@
 	import * as d3 from "d3"
 	import d3comparator from '$lib/d3comparator.js';
 
+
+	import { PUBLIC_ELASTICSEARCH_URL, PUBLIC_ELASTICSEARCH_USER, PUBLIC_ELASTICSEARCH_PWD } from '$env/static/public';
+
+
+
 	let dbg=1;
 
 	let el_selection;
@@ -60,12 +65,12 @@
 	//====================================================================================
 	onMount(async () => {
 
-		window.addEventListener('resize', debouncedSetWindowWidth);
-
-		return () => {
-			window.removeEventListener('resize', debouncedSetWindowWidth);
-		}
-
+//		window.addEventListener('resize', debouncedSetWindowWidth);
+//
+//		return () => {
+//			window.removeEventListener('resize', debouncedSetWindowWidth);
+//		}
+//
 
 
 		if(browser) {
@@ -79,11 +84,19 @@
 
 			innerwidth = innerWidth;
 
-			d3.selectAll('.flexItem')
-				.style('max-width', innerWidth+'px')
+//			d3.selectAll('.flexItem')
+//				.style('max-width', innerWidth+'px')
+//
+//			d3.selectAll('.node-label')
+//				.style('max-width', (innerWidth - ((24+24)*3) - 100)+'px')
 
-			d3.selectAll('.node-label')
-				.style('max-width', (innerWidth - ((24+24)*3) - 100)+'px')
+
+
+			d3.selectAll('.node-content')
+				.style('height','auto')
+				.style('margin-bottom','12px')
+
+
 
 			const savedList = window.localStorage.getItem('savedList') || null;
 			//window.localStorage.setItem('savedList', [lat,lon].join(',') );
@@ -102,7 +115,12 @@
 	//====================================================================================
 
 	function menuTree()	{
-		return d3.groups(data.lookup_item, d=>d.item_group)
+		console.group('%c'+'menuTree','color:magenta')
+
+		console.log('data', data);
+
+
+		let k = d3.groups(data.lookup_item, d=>d.item_group)
 							.map(d=>{
 
 								return {
@@ -141,6 +159,11 @@
 
 							})
 							.sort(d3comparator().order(d3.ascending, d=>d.key));
+
+
+		console.groupEnd('menuTree');
+
+		return k;
 	}
 
 	let menuList = menuTree();
@@ -354,6 +377,54 @@
 	}
 
 
+	//====================================================================================
+	//
+	//====================================================================================
+
+	function getPrices()	{
+
+		let dsl = {
+			size:0,
+			aggs:{
+				AGG:{
+					avg:{
+						field:'price'
+					}
+				}
+			}
+		};
+
+
+		let url = PUBLIC_ELASTICSEARCH_URL+"/pricechart/_search";
+		let auth = "Basic " + btoa(PUBLIC_ELASTICSEARCH_USER + ":" + PUBLIC_ELASTICSEARCH_PWD);
+
+		console.log('auth', auth);
+
+		console.log('dsl', JSON.stringify(dsl));
+
+		d3.json(url, {
+			method: 'POST',
+			headers: {
+				"Content-type": "application/json; charset=UTF-8",
+				"Authorization": auth,
+			},
+			body:JSON.stringify(dsl)
+		})
+		.then(res=>{
+
+			console.log('res', res);
+
+		});
+
+	}
+
+
+//	getPrices();
+
+
+	//====================================================================================
+	//
+	//====================================================================================
 
 </script>
 
@@ -407,12 +478,14 @@
 
 			      <div class="bp4-tree-node-content item_group item_group-{item_group.key}"
 			      	on:click={toggleTree}
-			      	style="cursor:pointer"
+			      	style="cursor:pointer;display:flex"
 			      >
-			        <span class="caret bp4-tree-node-caret bp4-icon-standard"></span>
-			        <span class="bp4-tree-node-icon bp4-icon-standard bp4-icon-folder-close"></span>
-			        <span class="bp4-tree-node-label">{item_group.label}</span>
-			        <span class="bp4-tree-node-secondary-label" style="color:{item_group.selected?'red':null}">{item_group.selected||''}</span>
+			        <div style="flex:0 0 32px"><span class="caret bp4-tree-node-caret bp4-icon-standard"></span></div>
+			        <div style="flex:0 0 24px"><span class="bp4-tree-node-icon bp4-icon-standard bp4-icon-folder-close"></span></div>
+			        <div style="flex:1 1 auto; display:flex;">
+				        <span class="bp4-tree-node-label">{item_group.label}</span>
+				        <span class="bp4-tree-node-secondary-label" style="flex:1 1 auto; text-align:right; color:{item_group.selected?'red':null}">{item_group.selected||''}</span>
+				      </div>
 			      </div>
 
 			      <ul class="bp4-tree-node-list" style="margin-left:24px; display:none">
@@ -420,11 +493,13 @@
 			      	{#each item_group.values as item_category}
 
 				        <li class="bp4-tree-node">
-				          <div class="bp4-tree-node-content item_category item_category-{item_category.key}" on:click={toggleTree} style="cursor:pointer">
-				            <span class="caret bp4-tree-node-caret bp4-icon-standard"></span>
-				            <span class="bp4-tree-node-icon bp4-icon-standard bp4-icon-folder-close"></span>
-				          	<span class="bp4-tree-node-label">{item_category.label}</span>
-				          	<span class="bp4-tree-node-secondary-label" style="color:{item_category.selected?'red':null}">{item_category.selected||''}</span>
+				          <div class="bp4-tree-node-content item_category item_category-{item_category.key}" on:click={toggleTree} style="cursor:pointer;display:flex">
+				            <div style="flex:0 0 32px"><span class="caret bp4-tree-node-caret bp4-icon-standard"></span></div>
+				            <div style="flex:0 0 24px"><span class="bp4-tree-node-icon bp4-icon-standard bp4-icon-folder-close"></span></div>
+				            <div style="flex:1 1 auto; display:flex;">
+					          	<span class="bp4-tree-node-label">{item_category.label}</span>
+					          	<span class="bp4-tree-node-secondary-label" style="flex:1 1 auto; text-align:right; color:{item_category.selected?'red':null}">{item_category.selected||''}</span>
+					          </div>
 				          </div>
 
 
@@ -433,11 +508,13 @@
 						      	{#each item_category.values as item_subcategory}
 
 							        <li class="bp4-tree-node">
-							          <div class="bp4-tree-node-content item_subcategory item_subcategory-{item_subcategory.key}" on:click={toggleTree} style="cursor:pointer">
-							            <span class="caret bp4-tree-node-caret bp4-icon-standard"></span>
-							            <span class="bp4-tree-node-icon bp4-icon-standard bp4-icon-folder-close"></span>
-							          	<span class="bp4-tree-node-label">{item_subcategory.label}</span>
-							          	<span class="bp4-tree-node-secondary-label" style="color:{item_subcategory.selected?'red':null}">{item_subcategory.selected||''}</span>
+							          <div class="bp4-tree-node-content item_subcategory item_subcategory-{item_subcategory.key}" on:click={toggleTree} style="cursor:pointer;display:flex">
+							            <div style="flex:0 0 32px"><span class="caret bp4-tree-node-caret bp4-icon-standard"></span></div>
+							            <div style="flex:0 0 24px"><span class="bp4-tree-node-icon bp4-icon-standard bp4-icon-folder-close"></span></div>
+							            <div style="flex:1 1 auto; display:flex;">
+								          	<div class="bp4-tree-node-label" style="flex:1 1 auto" >{item_subcategory.label}</div>
+								          	<div class="bp4-tree-node-secondary-label" style="flex:1 1 auto; text-align:right; color:{item_subcategory.selected?'red':null}">{item_subcategory.selected||''}</div>
+								          </div>
 							          </div>
 
 
@@ -446,11 +523,11 @@
 									      	{#each item_subcategory.values as item}
 
 										        <li class="bp4-tree-node">
-										          <div class="item bp4-tree-node-content item_code item_code-{item.item_code}" on:click={toggleItem} style="cursor:pointer">
+										          <div class="item node-content bp4-tree-node-content item_code item_code-{item.item_code}" on:click={toggleItem} style="cursor:pointer">
 										            <span class="bp4-tree-node-caret-none bp4-icon-standard"></span>
-										            <span class="node-icon bp4-tree-node-icon bp4-icon-standard bp4-icon-add"></span>
-										          	<span class="node-label bp4-tree-node-label" style="max-width:350px">{item.item}</span>
-										          	<span class="bp4-tree-node-secondary-label" style="min-width:100px; text-align:right;">{item.unit}</span>
+										            <span class="node-icon bp4-tree-node-icon bp4-icon-standard bp4-icon-add" style="color:blue"></span>
+										          	<span class="node-label" style="white-space: wrap; line-height:.9rem;">{item.item}</span>
+										          	<span class="bp4-tree-node-secondary-label" style="min-width:70px; text-align:right;">{item.unit}</span>
 										          </div>
 
 													{/each}
