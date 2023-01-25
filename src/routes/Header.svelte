@@ -14,7 +14,7 @@
 
 <div class="flex">
 	<div>
-		Sumber data : <a href="https://open.dosm.gov.my/" _target="_blank">Open DOSM</a>
+		Sumber data : PriceCatcher KPDN melalui <a href="https://open.dosm.gov.my/" _target="_blank">Open DOSM</a>
 	</div>
 </div>
 
