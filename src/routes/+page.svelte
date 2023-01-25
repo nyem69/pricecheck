@@ -290,42 +290,54 @@
 						});
 
 
-				sel.selectChildren('.item').data(
-
-					data.lookup_item.filter(d=>d._selected)
-						.sort(d3comparator().order(d3.ascending, d=>d.item))
-
-				, d=>d.item_code)
-					.join('div').attr('class','item')
-						.style('display','flex')
-						.style('margin-top','12px')
-						.style('margin-bottom','12px')
+				sel.selectChildren('.senarai').data(d=>[d])
+					.join('div').attr('class','senarai')
 						.call(sel=>{
 
 
 
-							sel.selectChildren('.icon').data(d=>[d])
-								.join('div').attr('class','icon')
-									.style('flex','1 1 32px')
-									.style('max-width','32px')
-									.selectChildren('button').data(d=>[d])
-										.join('button')
-											.attr('class','bp4-button bp4-icon-delete bp4-small bp4-minimal')
+							sel.selectChildren('.item').data(
+
+								data.lookup_item.filter(d=>d._selected)
+									.sort(d3comparator().order(d3.ascending, d=>d.item))
+
+							, d=>d.item_code)
+								.join('div').attr('class','item')
+									.style('display','flex')
+									.style('margin-top','12px')
+									.style('margin-bottom','12px')
+									.call(sel=>{
 
 
-							sel.selectChildren('.name').data(d=>[d])
-								.join('div').attr('class','name')
-									.style('flex','1 1 300px')
-									.style('max-width','300px')
-									.html(d=>d.item)
 
-							sel.selectChildren('.unit').data(d=>[d])
-								.join('div').attr('class','unit')
-									.style('flex','1 1 100px')
-									.style('max-width','100px')
-									.html(d=>d.unit)
+										sel.selectChildren('.icon').data(d=>[d])
+											.join('div').attr('class','icon')
+												.style('flex','1 1 32px')
+												.style('max-width','32px')
+												.selectChildren('button').data(d=>[d])
+													.join('button')
+														.attr('class','bp4-button bp4-icon-delete bp4-small bp4-minimal')
+
+
+										sel.selectChildren('.name').data(d=>[d])
+											.join('div').attr('class','name')
+												.style('flex','1 1 300px')
+												.style('max-width','300px')
+												.html(d=>d.item)
+
+										sel.selectChildren('.unit').data(d=>[d])
+											.join('div').attr('class','unit')
+												.style('flex','1 1 100px')
+												.style('max-width','100px')
+												.html(d=>d.unit)
+
+									});
+
+
+
 
 						});
+
 
 
 				sel.selectChildren('.footer').data(d=>[d])
@@ -378,12 +390,11 @@
 
 	<div class="flexItem">
 
-		<div style="margin-top:12px; margin-bottom:12px;">
-			Pilih barangan
-		</div>
+		<div class="bp4-tree bp4-elevation-3" style="padding-top:50px;padding-bottom:50px;background:#FBF6A740">
 
-		<div class="bp4-tree bp4-elevation-3" style="border:none">
-
+			<div style="margin:24px;">
+				Pilih barangan
+			</div>
 
 		  <ul class="bp4-tree-node-list bp4-tree-root">
 
@@ -468,7 +479,7 @@
 
 	<div class="flexItem">
 
-		<div class="bp4-card bp4-elevation-2" bind:this={el_selection}/>
+		<div class="bp4-card bp4-elevation-2" style="padding-top:50px;padding-bottom:50px;background:#F8B39B40;" bind:this={el_selection}/>
 
 	</div>
 
