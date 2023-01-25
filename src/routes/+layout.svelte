@@ -5,6 +5,7 @@
   $: ({ lookup_item } = data);
 
 	import Header from './Header.svelte';
+	import './styles.css';
 
 </script>
 
